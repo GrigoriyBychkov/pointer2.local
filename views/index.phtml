@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Клик-логгер</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+          integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <link rel="stylesheet" href="main.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+</head>
+<body>
+<div class="container mar_bot">
+    <div class="form-group">
+        <button class="btn btn-mini" data-point-name="one">One</button>
+        <button class="btn btn-mini" data-point-name="two">Two</button>
+        <button class="btn btn-mini" data-point-name="three">Three</button>
+        <button class="btn btn-mini" data-point-name="for">Four</button>
+    </div>
+</div>
+<?php var_dump(explode("/", $_SERVER['REQUEST_URI']));?>
+<div class="container">
+    <form action="/" method="post">
+        <div class="form-group">
+            <label for="points">Выберите имя точки</label>
+            <select class="form-control" id="points" name="name">
+                <?php foreach ($data['pointsNames'] as $record) { ?>
+                    <option <?= ($data['currentName']==$record['name'])?'selected':'' ?>><?= $record['name'] ?></option>
+                <?php } ?>
+            </select>
+        </div>
+
+
+        <button type="submit" class="btn btn-primary">Поссчитать количество хитов</button>
+    </form>
+</div>
+
+
+<div class="container">
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">Name</th>
+            <th scope="col">Ip</th>
+            <th scope="col">Clicks per minutes</th>
+        </tr>
+        </thead>
+        <tbody>
+        <?php foreach ($data['clickByNames'] as $item) { ?>
+            <tr>
+                <td><?= $item['name']?></td>
+                <td><?= $item['ip']?></td>
+                <td><?= $item['clicks_per_minute']?></td>
+            </tr>
+       <?php }?>
+
+        </tbody>
+    </table>
+</div>
+<br>
+<br>
+<br>
+<br>
+<br>
+
+<div class="container">
+    <form action="/" method="post">
+        <div class="form-group">
+            <label for="ips">Выберите IP</label>
+            <select class="form-control" id="ips" name="ip">
+                <?php foreach ($data['ips'] as $record) { ?>
+                    <option <?= ($data['currentIp']==$record['ip'])?'selected':'' ?>><?= $record['ip'] ?></option>
+                <?php } ?>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Поссчитать количество хитов</button>
+    </form>
+</div>
+
+<div class="container">
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">Name</th>
+            <th scope="col">Ip</th>
+            <th scope="col">Clicks per minutes</th>
+        </tr>
+        </thead>
+        <tbody>
+        <?php foreach ($data['clicksByIp'] as $item) { ?>
+            <tr>
+                <td><?= $item['name']?></td>
+                <td><?= $item['ip']?></td>
+                <td><?= $item['clicks_per_minute']?></td>
+            </tr>
+        <?php }?>
+
+        </tbody>
+    </table>
+</div>
+
+<script>
+    var clicks = [];
+
+    $(document).on('click', '[data-point-name]', function (e) {
+        // alert(123);
+        console.log(e);
+        var pointName = $(e.target).attr('data-point-name');
+        console.log(pointName);
+
+        clicks.push({
+            name: pointName,
+            time: new Date().valueOf()
+        })
+
+    });
+
+    setInterval(function () {
+        if (clicks.length > 0) {
+            $.post('point_save', {clicks: clicks}, function () {
+                console.log('Load was performed.');
+                clicks = [];
+            });
+        }
+    }, 10000);
+</script>
+</body>
+</html>
